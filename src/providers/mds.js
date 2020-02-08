@@ -4,6 +4,33 @@ const tripMatch = require("../matchers/trip");
 const changeMatch = require("../matchers/change");
 const crypto = require("crypto");
 
+function requestHeaders(provider) {
+  const headers = {
+    "Content-Type": "application/json",
+    "Authorization": provider.token
+  };
+  if (provider.version && !provider.version.startsWith("0.2")) {
+    headers["Accept"] = "application/vnd.mds.provider+json;version=" + provider.version;
+  }
+  return headers;
+}
+
+function tripsRequest(provider, start, stop) {
+  const v = provider.version || "0.2"
+  let url = provider.trips
+  if (v.startsWith("0.3")) {
+    url += "?min_end_time=" + start.toString() + "&max_end_time=" + stop.toString();
+  } else if (v.startsWith("0.2")) {
+    url += "?start_time=" + start.toString() + "&end_time=" + stop.toString();
+  } else {
+    throw "this tool supports MDS version 0.2.x and 0.3.x only";
+  }
+  return {
+    url: url,
+    headers: requestHeaders(provider)
+  }
+}
+
 async function trips(
   provider,
   stream,
@@ -15,19 +42,7 @@ async function trips(
   version
 ) {
   return new Promise(async (resolve, reject) => {
-    var opts = {
-      url:
-        provider.trips +
-        "?start_time=" +
-        start.toString() +
-        "&end_time=" +
-        stop.toString(),
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: provider.token
-      }
-    };
-
+    var opts = tripsRequest(provider, start, stop)
     // recursive scan across
     async function scan(opts, done) {
       request.get(opts, async (err, res, body) => {
@@ -82,10 +97,7 @@ async function changes(
         start.toString() +
         "&end_time=" +
         stop.toString(),
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: provider.token
-      }
+      headers: requestHeaders(provider)
     };
 
     // recursive scan across

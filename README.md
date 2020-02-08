@@ -106,6 +106,8 @@ A `config.json` file is required to run Mobility Metrics. Enable providers and s
       - token for MDS API; blank if local
     - `enabled`
       - true or false
+    - `version`
+      - Supports version '0.2.x' and version '0.3.x'
 - `zones`
   - optional GeoJSON FeatureCollection of Polygons and/or MultiPolygon with a unique property named `id`
 
