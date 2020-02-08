@@ -38,7 +38,7 @@ if (argv.help || argv.h || Object.keys(argv).length === 1) {
 const config = require(path.resolve(argv.config));
 // add spatial indices to zones
 if (!config.zones) {
-  config.zones = turf.FeatureCollection([]);
+  config.zones = turf.featureCollection([]);
 }
 const z = 19;
 const zs = { min_zoom: z, max_zoom: z };
